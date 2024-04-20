@@ -6,20 +6,20 @@ using namespace std;
 
 class Tree{
     private:
-    vector<vector<int>> recordOfState;
+    vector<vector<int>> recordOfValue;
     vector<int> goalState;
 
     public:
     Tree();
     Node *root;
-    // void printState();
-    void insert(vector<int>&);
 
-    void moveBlankTile(Node*);
+    void insert(vector<int>&, Node* );
+    void moveBlankTile(Node* );
     bool duplicatedState(vector<int>&);
-    void printRecordOfState() const;
-
+    void printRecordOfValue() const;
     bool goalStateCheck(vector<int>&);
+
+    int findgScoreOfNode(Node* );
 };
 
 #endif 

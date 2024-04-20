@@ -6,17 +6,19 @@
 using namespace std;
 
 Node::Node(){
-    currState = {};
-    recordOfState = {};
+    currValue = {};
+    gScore = 0;
+    parentNode = nullptr;
     firstChild = nullptr;
     secondChild = nullptr;
     thirdChild = nullptr;
     fourthChild = nullptr;
 }
 
-Node::Node(vector<int> newState){
-    currState = newState;
-    recordOfState.push_back(newState);
+Node::Node(vector<int> newValue){
+    currValue = newValue;
+    gScore = 0;
+    parentNode = nullptr;
     firstChild = nullptr;
     secondChild = nullptr;
     thirdChild = nullptr;
@@ -24,25 +26,17 @@ Node::Node(vector<int> newState){
 }
 
 vector<int> Node::getData() const{
-    return currState;
+    return currValue;
 }
 
-void Node::setData(const vector<int>& newState){
-    currState = newState;
+void Node::setData(const vector<int>& newValue){
+    currValue = newValue;
 }
 
-//test function
-void Node::printState() const{
-    for(int j = 0; j < 3; ++j){
-        cout << currState.at(j) << " ";
-    }
-    cout << endl;
-    for(int j = 3; j < 6; ++j){
-        cout << currState.at(j) << " ";
-    }
-    cout << endl;
-    for(int j = 6; j < 9; ++j){
-        cout << currState.at(j) << " ";
-    }
-    cout << endl << endl;
+void Node::setgScore(int updatedgScore){
+    gScore = updatedgScore;
+}
+
+int Node::getgScore() const{
+    return gScore;
 }

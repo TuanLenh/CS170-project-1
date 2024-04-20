@@ -8,10 +8,11 @@ using namespace std;
 
 class Node{
     private:
-    vector<int> currState;
-    vector<vector<int>> recordOfState;
+    vector<int> currValue;
+    int gScore;
     
     public:
+    Node *parentNode;
     Node *firstChild;
     Node *secondChild;
     Node *thirdChild;
@@ -22,8 +23,8 @@ class Node{
     vector<int> getData() const;
     void setData(const vector<int>&);
 
-    //test function
-    void printState() const;
+    void setgScore(int);
+    int getgScore() const;
 };
 
 #endif
