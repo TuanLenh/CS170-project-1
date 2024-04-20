@@ -17,9 +17,8 @@ class Tree{
     void moveBlankTile(Node* );
     bool duplicatedState(vector<int>&);
     void printRecordOfValue() const;
-    bool goalStateCheck(vector<int>&);
-
     int findgScoreOfNode(Node* );
+    Node* findSmallestDepthLeaf(Node* );
 };
 
 #endif 

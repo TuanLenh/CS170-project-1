@@ -1,6 +1,9 @@
 #include "Tree.h"
 #include <iostream>
 #include <string>
+#include <queue>
+#include <climits>
+
 
 using namespace std;
 
@@ -274,9 +277,38 @@ void Tree::printRecordOfValue() const{
     }
 }
 
-bool Tree::goalStateCheck(vector<int>& currState){
-    if(currState == goalState){
-        return true;
+Node* Tree::findSmallestDepthLeaf(Node* root) {
+    if (root == nullptr)
+        return nullptr;
+
+    queue<Node*> q;
+    q.push(root);
+    Node* smallestLeaf = nullptr;
+    int minDepth = INT_MAX;
+
+    while (!q.empty()) {
+        Node* current = q.front();
+        q.pop();
+
+        if (current->firstChild == nullptr && current->secondChild == nullptr &&
+            current->thirdChild == nullptr && current->fourthChild == nullptr) {
+            // Found a leaf node
+            if (current->getgScore() < minDepth) {
+                smallestLeaf = current;
+                minDepth = current->getgScore();
+            }
+        } else {
+            // Not a leaf node, so enqueue its children
+            if (current->firstChild != nullptr)
+                q.push(current->firstChild);
+            if (current->secondChild != nullptr)
+                q.push(current->secondChild);
+            if (current->thirdChild != nullptr)
+                q.push(current->thirdChild);
+            if (current->fourthChild != nullptr)
+                q.push(current->fourthChild);
+        }
     }
-    return false;
+
+    return smallestLeaf;
 }
