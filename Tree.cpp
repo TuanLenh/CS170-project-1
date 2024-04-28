@@ -1,314 +1,308 @@
 #include "Tree.h"
 #include <iostream>
-#include <string>
+#include <vector>
 #include <queue>
-#include <climits>
-
+#include <unordered_set>
+#include <cmath>
 
 using namespace std;
 
-Tree::Tree(){
-    root = nullptr;
-    recordOfValue = {};
-    goalState = {1,2,3,4,5,6,7,8,0};
-}
+Tree::Tree(const vector<int>& startState, const vector<int>& goalState) : startState(startState), goalState(goalState){}
 
-void Tree::insert(vector<int>& newValue, Node * parentNodeToExpand){
-    if(parentNodeToExpand == nullptr){
-        recordOfValue.push_back(newValue);
-        Node *newNode = new Node(newValue);
-        this->root = newNode;     
-    }
-    else{
-        if(parentNodeToExpand->firstChild == nullptr){
-            Node *newNode = new Node(newValue);
-            parentNodeToExpand->firstChild = newNode;
-            newNode->parentNode = parentNodeToExpand;
-            newNode->setgScore(findgScoreOfNode(newNode));
+void Tree::uniformCostSearch(){
+    priority_queue<Node*, vector<Node*>, CompareUCSNode> pq; 
+    unordered_set<string> visited;
+
+    pq.push(new Node(startState, 0, 0, nullptr));
+    while(!pq.empty()){
+        Node* currentNode = pq.top();
+        pq.pop();
+
+        if(currentNode->state == goalState){
+            printSolutionPath(currentNode);
+            return;
         }
-        else if(parentNodeToExpand->secondChild == nullptr){
-            Node *newNode = new Node(newValue);
-            parentNodeToExpand->secondChild = newNode;
-            newNode->parentNode = parentNodeToExpand;
-            newNode->setgScore(findgScoreOfNode(newNode));
-        }
-        else if(parentNodeToExpand->thirdChild == nullptr){
-            Node *newNode = new Node(newValue);
-            parentNodeToExpand->thirdChild = newNode;
-            newNode->parentNode = parentNodeToExpand;
-            newNode->setgScore(findgScoreOfNode(newNode));
-        }
-        else if(parentNodeToExpand->fourthChild == nullptr){
-            Node *newNode = new Node(newValue);
-            parentNodeToExpand->fourthChild = newNode;
-            newNode->parentNode = parentNodeToExpand;
-            newNode->setgScore(findgScoreOfNode(newNode));
+
+        visited.insert(changeTypeOfState(currentNode->state));
+        vector<vector<int>> nextStates = generateNextStates(currentNode->state);
+
+        for(const auto& nextState : nextStates){
+            if(visited.find(changeTypeOfState(nextState)) == visited.end()){
+                int updatedgScore = currentNode->gScore + 1;
+                Node* nextNode = new Node(nextState, updatedgScore, 0, currentNode);
+                pq.push(nextNode);
+            }
         }
     }
+    cout << "UwU, no solution" << endl;
 }
 
-int Tree::findgScoreOfNode(Node* currNode){
-    int i = 0;
-    Node * tranverseNode = currNode;
-    while(tranverseNode->parentNode != nullptr){
-        tranverseNode = tranverseNode->parentNode;
-        ++i;
-    }
-
-    return i;
-}
-
-
-
-void Tree::moveBlankTile(Node* currNode){
-    vector<int> currState = currNode->getData();
-    if(currState.at(0) == 0){
-        vector<int> tempState = currState;
+vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
+    vector<vector<int>> newSetOfStates;
+    
+    if(currentState.at(0) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(0), tempState.at(1));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(0) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(0), tempState.at(3));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
     }
 
     // blank tile is at 1, 3 op
-    if(currState.at(1) == 0){
-        vector<int> tempState = currState;
+    if(currentState.at(1) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(1), tempState.at(0));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(1) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(1), tempState.at(2));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(1) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(1), tempState.at(4));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
     }
 
     // blank tile is at 2, 2 op
-    if(currState.at(2) == 0){
-        vector<int> tempState = currState;
+    if(currentState.at(2) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(2), tempState.at(1));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(2) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+        
+        tempState = currentState;
         swap(tempState.at(2), tempState.at(5));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
     }
 
     // blank tile is at 3, 3 op
-    if(currState.at(3) == 0){
-        vector<int> tempState = currState;
+    if(currentState.at(3) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(3), tempState.at(0));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(3) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+
+        tempState = currentState;
         swap(tempState.at(3), tempState.at(4));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(3) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(3), tempState.at(6));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
     }
 
     // blank tile is at 4, 4 op
-    if(currState.at(4) == 0){
-        vector<int> tempState = currState;
+    if(currentState.at(4) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(4), tempState.at(1));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(4) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(4), tempState.at(3));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if(currState.at(4) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(4), tempState.at(5));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if(currState.at(4) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+
+        tempState = currentState;
         swap(tempState.at(4), tempState.at(7));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
     }
 
     // blank tile is at 5, 3 op
-    if(currState.at(5) == 0){
-        vector<int> tempState = currState;
+    if(currentState.at(5) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(5), tempState.at(2));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(5) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(5), tempState.at(4));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(5) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(5), tempState.at(8));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
     }
 
     // blank tile is at 6, 2 op
-    if(currState.at(6) == 0){
-        vector<int> tempState = currState;
+    if(currentState.at(6) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(6), tempState.at(7));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(6) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(6), tempState.at(3));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
     }
 
     // blank tile is at 7, 3 op
-    if(currState.at(7) == 0){
-        vector<int> tempState = currState;
+    if(currentState.at(7) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(7), tempState.at(6));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(7) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+
+        tempState = currentState;
         swap(tempState.at(7), tempState.at(8));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(7) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(7), tempState.at(4));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
     }
 
     // blank tile is at 8, 2 op
-    if(currState.at(8) == 0){
-        vector<int> tempState = currState;
+    if(currentState.at(8) == 0){
+        vector<int> tempState = currentState;
         swap(tempState.at(8), tempState.at(5));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
-    }
-    if (currState.at(8) == 0){
-        vector<int> tempState = currState;
+        newSetOfStates.push_back(tempState);
+    
+        tempState = currentState;
         swap(tempState.at(8), tempState.at(7));
-        if(!duplicatedState(tempState)){
-            this->insert(tempState, currNode);
-        }
+        newSetOfStates.push_back(tempState);
+    }
+
+    return newSetOfStates;
+}
+
+string Tree::changeTypeOfState(const vector<int>& currentState){
+    string newState;
+    for(size_t i = 0; i < currentState.size(); ++i){
+        newState = newState + to_string(currentState[i]);
+    }
+    return newState;
+}
+
+void Tree::printSolutionPath(Node* currentNode){
+    cout << "Solution Found! Printing path:" << endl;
+    vector<Node*> path;
+    while(currentNode != nullptr){
+        path.push_back(currentNode);
+        currentNode = currentNode->parent;
+    }
+    for(int i = path.size() - 1; i >= 0; --i){
+        cout << "Step " << path.size() - i - 1 << ":" << endl;
+        vector<int> currentState = path.at(i)->state;
+        printState(currentState);
     }
 }
 
-bool Tree::duplicatedState(vector<int>& tempState){
-    for(int i = 0; i < recordOfValue.size(); ++i){
-        if(recordOfValue.at(i) == tempState){
-            return true;
-        }
+void Tree::printState(const vector<int>& state){
+    for(int i = 0; i < 3; ++i){
+        cout << state.at(i) << " ";
     }
-    recordOfValue.push_back(tempState);
-
-    return false;
+    cout << endl;
+    for(int i = 3; i < 6; ++i){
+        cout << state.at(i) << " ";
+    }
+    cout << endl;
+    for(int i = 6; i < 9; ++i){
+        cout << state.at(i) << " ";
+    }
+    cout << endl << endl;
 }
 
-void Tree::printRecordOfValue() const{
-    cout << endl << "Below are all the value we have so far:" << endl;
-    for(int i = 0; i < recordOfValue.size(); ++i){
-        for(int j = 0; j < 3; ++j){
-            cout << recordOfValue[i][j] << " ";
+void Tree::misplacedTile(){
+    priority_queue<Node*, vector<Node*>, CompareAStarNode> pq;
+    unordered_set<string> visited;
+
+    int currenthScore = calcMisplacedTiles(startState);
+    pq.push(new Node(startState, 0, currenthScore, nullptr));
+    while(!pq.empty()){
+        Node* currentNode = pq.top();
+        pq.pop();
+
+        if(currentNode->state == goalState){
+            printSolutionPath(currentNode);
+            return;
         }
-        cout << endl;
-        for(int j = 3; j < 6; ++j){
-            cout << recordOfValue[i][j] << " ";
-        }
-        cout << endl;
-        for(int j = 6; j < 9; ++j){
-            cout << recordOfValue[i][j] << " ";
-        }
-        cout << endl << endl;
-    }
-}
 
-Node* Tree::findSmallestDepthLeaf(Node* root) {
-    if (root == nullptr)
-        return nullptr;
+        visited.insert(changeTypeOfState(currentNode->state));
+        vector<vector<int>> nextStates = generateNextStates(currentNode->state);
 
-    queue<Node*> q;
-    q.push(root);
-    Node* smallestLeaf = nullptr;
-    int minDepth = INT_MAX;
-
-    while (!q.empty()) {
-        Node* current = q.front();
-        q.pop();
-
-        if (current->firstChild == nullptr && current->secondChild == nullptr &&
-            current->thirdChild == nullptr && current->fourthChild == nullptr) {
-            // Found a leaf node
-            if (current->getgScore() < minDepth) {
-                smallestLeaf = current;
-                minDepth = current->getgScore();
+        for(const auto& nextState : nextStates){
+            if(visited.find(changeTypeOfState(nextState)) == visited.end()){
+                int nextCost = currentNode->gScore + 1;
+                int currenthScore = calcMisplacedTiles(nextState);
+                Node* nextNode = new Node(nextState, nextCost, currenthScore, currentNode);
+                pq.push(nextNode);
             }
-        } else {
-            // Not a leaf node, so enqueue its children
-            if (current->firstChild != nullptr)
-                q.push(current->firstChild);
-            if (current->secondChild != nullptr)
-                q.push(current->secondChild);
-            if (current->thirdChild != nullptr)
-                q.push(current->thirdChild);
-            if (current->fourthChild != nullptr)
-                q.push(current->fourthChild);
         }
     }
+    cout << "UwU, no solution" << endl;
+}
 
-    return smallestLeaf;
+int Tree::calcMisplacedTiles(const vector<int>& state){
+    int totalMisplaced = 0;
+    if(state.at(0)!= 1){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    if(state.at(1)!= 2){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    if(state.at(2)!= 3){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    if(state.at(3)!= 4){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    if(state.at(4)!= 5){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    if(state.at(5)!= 6){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    if(state.at(6)!= 7){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    if(state.at(7)!= 8){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    if(state.at(8)!= 0){
+        totalMisplaced = totalMisplaced + 1;
+    }
+    return totalMisplaced;
+}
+
+void Tree::euclideanDistance(){
+    priority_queue<Node*, vector<Node*>, CompareAStarNode> pq;
+    unordered_set<string> visited;
+
+    int currenthScore = calcEuclideanDistance(startState);
+    pq.push(new Node(startState, 0, currenthScore, nullptr));
+    while(!pq.empty()){
+        Node* currentNode = pq.top();
+        pq.pop();
+
+        if(currentNode->state == goalState){
+            printSolutionPath(currentNode);
+            return;
+        }
+
+        visited.insert(changeTypeOfState(currentNode->state));
+        vector<vector<int>> nextStates = generateNextStates(currentNode->state);
+
+        for(const auto& nextState : nextStates){
+            if(visited.find(changeTypeOfState(nextState)) == visited.end()){
+                int nextCost = currentNode->gScore + 1;
+                int currenthScore = calcEuclideanDistance(nextState);
+                Node* nextNode = new Node(nextState, nextCost, currenthScore, currentNode);
+                pq.push(nextNode);
+            }
+        }
+    }
+    cout << "UwU, no solution" << endl;
+}
+
+int Tree::calcEuclideanDistance(const vector<int>& currentState){
+    int totalDistance = 0;
+    for(int i = 0; i < currentState.size(); ++i){
+        if(currentState.at(i) != 0){
+            int goalIndex = currentState[i] - 1;
+            int diffOfRow = abs(i / 3 - goalIndex / 3);
+            int diffOfCol = abs(i % 3 - goalIndex % 3);
+            totalDistance = totalDistance + sqrt(diffOfRow * diffOfRow + diffOfCol * diffOfCol);
+        }
+    }
+    return totalDistance;
 }
