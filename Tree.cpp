@@ -9,12 +9,16 @@ using namespace std;
 
 Tree::Tree(const vector<int>& startState, const vector<int>& goalState) : startState(startState), goalState(goalState){}
 
+
 void Tree::uniformCostSearch(){
+    //inialize priority queue and unordered set
     priority_queue<Node*, vector<Node*>, CompareUCSNode> pq; 
     unordered_set<string> visited;
 
+    //the puzzle is added to the queue
     pq.push(new Node(startState, 0, 0, nullptr));
     while(!pq.empty()){
+        //the top node of the queue is removed; then it is compared with goal state
         Node* currentNode = pq.top();
         pq.pop();
 
@@ -23,9 +27,16 @@ void Tree::uniformCostSearch(){
             return;
         }
 
+        //the state is then added the unordered_set visisted.
+        //But first the state changes its type from int to string through the changeOfState function
+    
         visited.insert(changeTypeOfState(currentNode->state));
-        vector<vector<int>> nextStates = generateNextStates(currentNode->state);
 
+        //nextStates is vector that store new expanded states
+        vector<vector<int>> nextStates = generateNextStates(currentNode->state);
+        
+        //this loop loops through the vector nexStates and tranverse through the visited set
+        //to find if the newstates are already in the set or not. If not, then the newstates are added to the queue
         for(const auto& nextState : nextStates){
             if(visited.find(changeTypeOfState(nextState)) == visited.end()){
                 int updatedgScore = currentNode->gScore + 1;
@@ -37,9 +48,11 @@ void Tree::uniformCostSearch(){
     cout << "UwU, no solution" << endl;
 }
 
+//This function creates different states and add these states to a vector
 vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
     vector<vector<int>> newSetOfStates;
     
+    // blank tile is at 0, 2 options
     if(currentState.at(0) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(0), tempState.at(1));
@@ -50,7 +63,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
         newSetOfStates.push_back(tempState);
     }
 
-    // blank tile is at 1, 3 op
+    // blank tile is at 1, 3 options
     if(currentState.at(1) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(1), tempState.at(0));
@@ -65,7 +78,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
         newSetOfStates.push_back(tempState);
     }
 
-    // blank tile is at 2, 2 op
+    // blank tile is at 2, 2 options
     if(currentState.at(2) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(2), tempState.at(1));
@@ -76,7 +89,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
         newSetOfStates.push_back(tempState);
     }
 
-    // blank tile is at 3, 3 op
+    // blank tile is at 3, 3 options
     if(currentState.at(3) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(3), tempState.at(0));
@@ -91,7 +104,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
         newSetOfStates.push_back(tempState);
     }
 
-    // blank tile is at 4, 4 op
+    // blank tile is at 4, 4 options
     if(currentState.at(4) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(4), tempState.at(1));
@@ -110,7 +123,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
         newSetOfStates.push_back(tempState);
     }
 
-    // blank tile is at 5, 3 op
+    // blank tile is at 5, 3 options
     if(currentState.at(5) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(5), tempState.at(2));
@@ -125,7 +138,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
         newSetOfStates.push_back(tempState);
     }
 
-    // blank tile is at 6, 2 op
+    // blank tile is at 6, 2 options
     if(currentState.at(6) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(6), tempState.at(7));
@@ -136,7 +149,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
         newSetOfStates.push_back(tempState);
     }
 
-    // blank tile is at 7, 3 op
+    // blank tile is at 7, 3 options
     if(currentState.at(7) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(7), tempState.at(6));
@@ -151,7 +164,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
         newSetOfStates.push_back(tempState);
     }
 
-    // blank tile is at 8, 2 op
+    // blank tile is at 8, 2 options
     if(currentState.at(8) == 0){
         vector<int> tempState = currentState;
         swap(tempState.at(8), tempState.at(5));
@@ -165,6 +178,7 @@ vector<vector<int>> Tree::generateNextStates(const vector<int>& currentState){
     return newSetOfStates;
 }
 
+//This function changes the type of state from int to string so it can added to the visited set
 string Tree::changeTypeOfState(const vector<int>& currentState){
     string newState;
     for(size_t i = 0; i < currentState.size(); ++i){
@@ -173,6 +187,8 @@ string Tree::changeTypeOfState(const vector<int>& currentState){
     return newState;
 }
 
+//This function print path and transver the node upward using parent node. 
+//At every node, printState function is employed to print individually a node
 void Tree::printSolutionPath(Node* currentNode){
     cout << "Solution Found! Printing path:" << endl;
     vector<Node*> path;
@@ -187,6 +203,7 @@ void Tree::printSolutionPath(Node* currentNode){
     }
 }
 
+//Print the state of a node
 void Tree::printState(const vector<int>& state){
     for(int i = 0; i < 3; ++i){
         cout << state.at(i) << " ";
@@ -202,12 +219,17 @@ void Tree::printState(const vector<int>& state){
     cout << endl << endl;
 }
 
+
 void Tree::misplacedTile(){
+    //inialize priority queue and unordered set
     priority_queue<Node*, vector<Node*>, CompareAStarNode> pq;
     unordered_set<string> visited;
 
+    //h score of the given puzzle is calculated
     int currenthScore = calcMisplacedTiles(startState);
     pq.push(new Node(startState, 0, currenthScore, nullptr));
+
+    //the top node of the queue is removed; then it is compared with goal state
     while(!pq.empty()){
         Node* currentNode = pq.top();
         pq.pop();
@@ -217,9 +239,15 @@ void Tree::misplacedTile(){
             return;
         }
 
+        //the state is then added the unordered_set visisted.
+        //But first the state changes its type from int to string through the changeOfState function
         visited.insert(changeTypeOfState(currentNode->state));
+
+        //nextStates is vector that store new expanded states
         vector<vector<int>> nextStates = generateNextStates(currentNode->state);
 
+        //this loop loops through the vector nexStates and tranverse through the visited set
+        //to find if the newstates are already in the set or not. If not, then the newstates are added to the queue
         for(const auto& nextState : nextStates){
             if(visited.find(changeTypeOfState(nextState)) == visited.end()){
                 int nextCost = currentNode->gScore + 1;
@@ -232,6 +260,7 @@ void Tree::misplacedTile(){
     cout << "UwU, no solution" << endl;
 }
 
+//This function just calculate the total of tiles that are not at the correct positions
 int Tree::calcMisplacedTiles(const vector<int>& state){
     int totalMisplaced = 0;
     if(state.at(0)!= 1){
@@ -264,12 +293,17 @@ int Tree::calcMisplacedTiles(const vector<int>& state){
     return totalMisplaced;
 }
 
+
 void Tree::euclideanDistance(){
+     //inialize priority queue and unordered set
     priority_queue<Node*, vector<Node*>, CompareAStarNode> pq;
     unordered_set<string> visited;
 
+    //h score of the given puzzle is calculated
     int currenthScore = calcEuclideanDistance(startState);
     pq.push(new Node(startState, 0, currenthScore, nullptr));
+
+    //the top node of the queue is removed; then it is compared with goal state
     while(!pq.empty()){
         Node* currentNode = pq.top();
         pq.pop();
@@ -279,9 +313,15 @@ void Tree::euclideanDistance(){
             return;
         }
 
+        //the state is then added the unordered_set visisted.
+        //But first the state changes its type from int to string through the changeOfState function
         visited.insert(changeTypeOfState(currentNode->state));
+        
+        //nextStates is vector that store new expanded states
         vector<vector<int>> nextStates = generateNextStates(currentNode->state);
 
+        //this loop loops through the vector nexStates and tranverse through the visited set
+        //to find if the newstates are already in the set or not. If not, then the newstates are added to the queue
         for(const auto& nextState : nextStates){
             if(visited.find(changeTypeOfState(nextState)) == visited.end()){
                 int nextCost = currentNode->gScore + 1;
@@ -294,6 +334,8 @@ void Tree::euclideanDistance(){
     cout << "UwU, no solution" << endl;
 }
 
+//this function calculate the direct distance of the tile to their correct positions.
+//to find the direct distance, Pythagorean theorem is employed
 int Tree::calcEuclideanDistance(const vector<int>& currentState){
     int totalDistance = 0;
     for(int i = 0; i < currentState.size(); ++i){
